@@ -45,7 +45,7 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
                 )
             );
 
-            return AddRewriteCommentIfNeeded(resultNode, $"{nameof(ThisRewriterBase)}:{nameof(CreateCastedThisExpression)}");
+            return AddRewriteCommentIfNeeded(SyntaxFactory.ParenthesizedExpression(resultNode), $"{nameof(ThisRewriterBase)}:{nameof(CreateCastedThisExpression)}");
         }
     }
 }

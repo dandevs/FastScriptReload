@@ -142,7 +142,7 @@ namespace FastScriptReload.Editor.Compilation
                 if (FastScriptReloadManager.Instance.EnableExperimentalThisCallLimitationFix)
                 {
 					root = new ThisCallRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
-					root = new ThisAssignmentRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
+					// root = new ThisAssignmentRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
                 }
 
                 if (FastScriptReloadManager.Instance.AssemblyChangesLoaderEditorOptionsNeededInBuild.EnableExperimentalAddedFieldsSupport)

@@ -12,11 +12,12 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
         
         public override SyntaxNode VisitThisExpression(ThisExpressionSyntax node)
         {
-            if (node.Parent is ArgumentSyntax)
-            {
-                return CreateCastedThisExpression(node);
-            }
-            return base.VisitThisExpression(node);
+            return CreateCastedThisExpression(node);
+            // if (node.Parent is ArgumentSyntax)
+            // {
+            //     return CreateCastedThisExpression(node);
+            // }
+            // return base.VisitThisExpression(node);
         }
     }
 }
