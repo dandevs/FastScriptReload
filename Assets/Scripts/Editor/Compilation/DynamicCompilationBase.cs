@@ -152,6 +152,7 @@ namespace FastScriptReload.Editor.Compilation
                 }
                 
                 root = new ConstructorRewriter(adjustCtorOnlyForNonNestedTypes: true, DebugWriteRewriteReasonAsComment).Visit(root);
+                root = new ReturnRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
                 
                 var hotReloadCompliantRewriter = new HotReloadCompliantRewriter(DebugWriteRewriteReasonAsComment);
                 root = hotReloadCompliantRewriter.Visit(root);
