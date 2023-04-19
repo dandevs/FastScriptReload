@@ -152,7 +152,6 @@ namespace FastScriptReload.Editor.Compilation
                 }
                 
                 root = new ConstructorRewriter(adjustCtorOnlyForNonNestedTypes: true, DebugWriteRewriteReasonAsComment).Visit(root);
-                root = new ReturnRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
                 
                 var hotReloadCompliantRewriter = new HotReloadCompliantRewriter(DebugWriteRewriteReasonAsComment);
                 root = hotReloadCompliantRewriter.Visit(root);
@@ -162,7 +161,7 @@ namespace FastScriptReload.Editor.Compilation
                 // root = new AllPatchedIdentifiersRewriter(DebugWriteRewriteReasonAsComment, hotReloadCompliantRewriter.OriginalIdentifiersRenamedToContainPatchedPostfix)
                 //     .Visit(root);
                 
-                root = new BuilderPatternFunctionsRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
+                // root = new BuilderPatternFunctionsRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
                 
                 //processed as last step to simply rewrite all changes made before
                 if (TryResolveUserDefinedOverridesRoot(sourceCodeFile, definedPreprocessorSymbols, out var userDefinedOverridesRoot))
