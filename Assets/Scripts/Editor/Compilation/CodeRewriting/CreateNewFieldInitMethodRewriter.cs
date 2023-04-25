@@ -85,7 +85,7 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
 						dictionaryKeyToInitValueNodes.ToArray()
 					));
 
-			var withDictionaryFieldNameToInitFieldValue = node.AddMembers(
+			var withDictionaryFieldNameToInitFieldValue = node.WithMembers(node.Members.Insert(0, 
 				SyntaxFactory.FieldDeclaration(
 						SyntaxFactory.VariableDeclaration(
 								SyntaxFactory.GenericName(
@@ -146,7 +146,7 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
 					.NormalizeWhitespace()
 					.WithLeadingTrivia(SyntaxFactory.TriviaList(SyntaxFactory.ElasticCarriageReturnLineFeed))
 					.WithTrailingTrivia(SyntaxFactory.TriviaList(SyntaxFactory.ElasticCarriageReturnLineFeed, SyntaxFactory.ElasticCarriageReturnLineFeed))
-			);
+			));
 			return AddRewriteCommentIfNeeded(withDictionaryFieldNameToInitFieldValue, $"{nameof(CreateNewFieldInitMethodRewriter)}", true);
 		}
 	}
