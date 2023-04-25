@@ -142,7 +142,7 @@ namespace FastScriptReload.Editor.Compilation
                 if (FastScriptReloadManager.Instance.EnableExperimentalThisCallLimitationFix)
                 {
 					root = new ThisCallRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
-					// root = new ThisAssignmentRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
+					root = new ThisAssignmentRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
                 }
 
                 if (FastScriptReloadManager.Instance.AssemblyChangesLoaderEditorOptionsNeededInBuild.EnableExperimentalAddedFieldsSupport)
@@ -152,6 +152,8 @@ namespace FastScriptReload.Editor.Compilation
                 }
                 
                 root = new ConstructorRewriter(adjustCtorOnlyForNonNestedTypes: true, DebugWriteRewriteReasonAsComment).Visit(root);
+                root = new ReturnRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
+                root = new StaticFieldIdentifierRewriter(DebugWriteRewriteReasonAsComment).Visit(root);
                 
                 var hotReloadCompliantRewriter = new HotReloadCompliantRewriter(DebugWriteRewriteReasonAsComment);
                 root = hotReloadCompliantRewriter.Visit(root);

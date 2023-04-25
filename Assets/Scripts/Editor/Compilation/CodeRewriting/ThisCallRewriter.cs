@@ -23,31 +23,34 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
             return base.VisitThisExpression(node);
         }
 
-        public override SyntaxNode VisitAssignmentExpression(AssignmentExpressionSyntax node)
-        {
-            if (node.Right is ThisExpressionSyntax)
-            {
-                var typeDelcaration = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+        // public override SyntaxNode VisitAssignmentExpression(AssignmentExpressionSyntax node)
+        // {
+        //     if (node.Right is ThisExpressionSyntax)
+        //     {
+        //         var typeDelcaration = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
 
-                if (typeDelcaration != null)
-                    return node.WithRight(SyntaxFactory.ParseExpression($"({typeDelcaration.Identifier.Text})(object)this"));
-            }
+        //         if (typeDelcaration != null)
+        //             return node.WithRight(SyntaxFactory.ParseExpression($"({typeDelcaration.Identifier.Text})(object)this"));
+        //     }
 
-            return base.VisitAssignmentExpression(node);
-        }
+        //     return base.VisitAssignmentExpression(node);
+        // }
 
         public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
         {
-            var typeDeclarationNode = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
-
-            if (typeDeclarationNode != null && node.Expression is MemberAccessExpressionSyntax memberAccess && memberAccess.Expression is ThisExpressionSyntax thisExpr)
+            if (node.Expression is MemberAccessExpressionSyntax memberAccess && memberAccess.Expression is ThisExpressionSyntax thisExpr)
             {
+                var typeDeclarationNode = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+
+                if (typeDeclarationNode == null)
+                    return base.VisitInvocationExpression(node);
+
                 var containsMember = typeDeclarationNode.Members.Any(m => m is MethodDeclarationSyntax method && method.Identifier.Text == memberAccess.Name.Identifier.Text);
 
                 if (!containsMember)
                 {
-                    var newExpression = SyntaxFactory.ParseExpression($"(({typeDeclarationNode.Identifier.Text})(object)this).{memberAccess.Name}");
-                    return node.WithExpression(newExpression);
+                    var newExpression = SyntaxFactory.ParseExpression($"(({typeDeclarationNode.Identifier.Text})(System.Object)this).{memberAccess.Name}");
+                    return node.WithExpression(newExpression).WithTriviaFrom(node);
                 }
             }
 
@@ -60,7 +63,7 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
                 var typeDelcaration = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
 
                 if (typeDelcaration != null)
-                    return node.WithExpression(SyntaxFactory.ParseExpression($"({typeDelcaration.Identifier.Text})(object)this"));
+                    return node.WithExpression(SyntaxFactory.ParseExpression($"({typeDelcaration.Identifier.Text})(System.Object)this")).WithTriviaFrom(node);
             }
 
             return base.VisitReturnStatement(node);
