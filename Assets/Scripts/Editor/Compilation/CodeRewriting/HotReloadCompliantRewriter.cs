@@ -3,6 +3,7 @@ using FastScriptReload.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace FastScriptReload.Editor.Compilation.CodeRewriting
 {
@@ -60,6 +61,9 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
 
         private SyntaxNode AddPatchedPostfixToTopLevelDeclarations(CSharpSyntaxNode node, SyntaxToken identifier)
         {
+            if (node is not ClassDeclarationSyntax)
+                return node;
+
             OriginalIdentifiersRenamedToContainPatchedPostfix.Add(identifier.ValueText);
             
             var newIdentifier = SyntaxFactory.Identifier(identifier + AssemblyChangesLoader.ClassnamePatchedPostfix);
