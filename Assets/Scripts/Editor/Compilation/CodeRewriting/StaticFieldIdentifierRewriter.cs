@@ -43,11 +43,14 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
             return base.VisitFieldDeclaration(node);
         }
 
+
         public override SyntaxNode VisitIdentifierName(IdentifierNameSyntax node) 
         {
             // Simple optimization to avoid unnecessary parsing
-            if (!_staticFieldNamesFlat.Contains(node.Identifier.ToString()))
+            if (!_staticFieldNamesFlat.Contains(node.Identifier.ToString()) || InLocalScope(node))
+            {
                 return base.VisitIdentifierName(node);
+            }
 
             var typeDeclarationNode = node.FirstAncestorOrSelf<TypeDeclarationSyntax>();
 
@@ -55,18 +58,43 @@ namespace FastScriptReload.Editor.Compilation.CodeRewriting
             {
                 if (staticFieldNames.Contains(node.Identifier.ToString()))
                 {
-                    // Check if the parent is a MemberAccessExpressionSyntax and its Expression is the same as the typeDeclarationNode.Identifier
-                    if (node.Parent is MemberAccessExpressionSyntax memberAccess && memberAccess.Expression.ToString() == typeDeclarationNode.Identifier.ToString())
-                    {
-                        return base.VisitIdentifierName(node);
-                    }
-
                     var syntaxNode = SyntaxFactory.ParseExpression($"{typeDeclarationNode.Identifier}.{node.Identifier}");
                     return AddRewriteCommentIfNeeded(syntaxNode, $"{nameof(StaticFieldIdentifierRewriter)}:{nameof(VisitIdentifierName)}").WithTriviaFrom(node);
                 }
             }
 
             return base.VisitIdentifierName(node);
+        }
+
+        /// <summary>Check if exists as a parameter or local declaration. Does not check static field declarations</summary>
+        private bool InLocalScope(IdentifierNameSyntax node)
+        {
+            if (node.Parent is MemberAccessExpressionSyntax memberAccess)
+            {
+                return true;
+            }
+
+            // Check if the identifier is a parameter name in a method declaration
+            var methodDeclaration = node.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+            if (methodDeclaration != null)
+            {
+                if (methodDeclaration.ParameterList.Parameters.Any(parameter => parameter.Identifier.ToString() == node.Identifier.ToString()))
+                {
+                    return true;
+                }
+            }
+
+            // Check if the identifier is a local variable within the current method
+            var localDeclaration = node.Ancestors().OfType<LocalDeclarationStatementSyntax>().FirstOrDefault();
+            if (localDeclaration != null)
+            {
+                if (localDeclaration.Declaration.Variables.Any(variable => variable.Identifier.ToString() == node.Identifier.ToString()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
